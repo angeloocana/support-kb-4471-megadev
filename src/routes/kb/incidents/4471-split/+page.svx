@@ -1,0 +1,79 @@
+---
+layout: runbook
+title: '#4471 is three problems: one ticket each'
+owner: Angelo Ocana Martins
+status: open
+reviewed: 2026-10-28
+signature: Angelo Ocana Martins
+---
+
+<script>
+  import ProblemSplit from '#lib/kb/ProblemSplit.svelte';
+  import CauseTable from '#lib/kb/CauseTable.svelte';
+  import Callout from '#lib/kb/Callout.svelte';
+  import RenderStamp from '#lib/kb/RenderStamp.svelte';
+</script>
+
+The [#4471 page](/kb/incidents/4471) says "one issue, one fix queued". Its own table says
+otherwise. The reports merged into #4471 are three problems, and each needs its own fix. The
+queued parser fix closes only the first one.
+
+<Callout kind="warn">
+Do not close #4471 for all of them when the parser fix ships. Two of the three problems will
+still be there. Each problem now has its own ticket, linked below.
+</Callout>
+
+## The three problems
+
+<ProblemSplit ticket={4471} filed={{
+  parser: { href: 'https://github.com/angeloocana/support-kb-4471-megadev/issues/1', title: 'issue 1: parser reads dates month first' },
+  hint: { href: 'https://github.com/angeloocana/support-kb-4471-megadev/issues/2', title: 'issue 2: booking-v3 date hint' },
+  'one-day move': { href: 'https://github.com/angeloocana/support-kb-4471-megadev/issues/3', title: 'issue 3: one-day move' },
+}} />
+
+### `parser`: the shared parser reads dates month first
+
+Our tenants write the day first, and the shared parser reads every date month first. Day and
+month swap: "Booked for 2 December. The invite says 12 February." Every tenant on file has it.
+**Fix:** parse dates in the tenant's own locale. This is the fix #4471 queued.
+
+### `hint`: booking-v3 tells people to type the month first
+
+The booking-v3 form prints `MM/DD/YYYY` under its date field. People type what the hint says,
+month first, and the form reads the date the tenant's way, day first. So the form itself swaps
+day and month. Only booking-v3 tenants, and only bookings made through the form. The parser fix
+does not touch this code. **Fix:** print the tenant's own date order under the field.
+
+### `one-day move`: the date moves by one day, not by a month
+
+Day and month do not swap here. The booking moves by one day: "Tuesday 6 October showed as
+Monday." A client in Lisbon and a client in Toronto got different days for the same meeting.
+This points at time-zone handling, not at the parser. The desk already read these reports
+differently (`desk-notes.json`), but they stayed filed under `parser`. **Fix:** find where the
+booking's date crosses a time zone. The parser fix will not change it.
+
+## Why one ticket hid three
+
+- [Decision 0001](/kb/decisions/0001-dedupe-by-subject) merges on the subject line. People
+  write the same subjects ("Month and day swapped?", "Wrong day on the invite") for different
+  bugs, so the subject cannot tell the bugs apart.
+- Intake's tag is a guess from the reporter's browser. The cause depends on the tenant: its
+  locale and its booking form. The "tagged as" column below shows how often the two disagree.
+- The ticket export repeats some reports across pages. Each report is counted once, by id.
+
+## What #4471 shows
+
+The table from the #4471 page, unchanged. Its `hint` row has no ticket of its own, and the
+one-day moves are counted inside `parser`, in the note under it.
+
+<CauseTable ticket={4471} />
+
+## What to do now
+
+- **Engineering:** take the three tickets one by one. Only `parser` is queued.
+- **Desk:** merge a new report by its cause (tenant and the way the booking was made), not by
+  its subject. A report where the date moves by one day goes to the `one-day move` ticket.
+- **Decision 0001:** it is accepted, so nobody edits it. A new decision record should replace
+  it with merging by cause.
+
+<RenderStamp {signature} />
