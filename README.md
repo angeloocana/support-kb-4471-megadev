@@ -39,11 +39,10 @@ Exported 2026-10-04 from the `support` repo, `apps/kb/` → `src/`.
 
 ## This copy (MEGA.dev S01E03)
 
-The export above, plus one signed page that splits #4471 into one ticket per problem:
+The export above, unchanged, plus one signed page that splits #4471 into one ticket per problem:
 
-- page: `src/routes/kb/incidents/4471-split/+page.svx`
-- its logic: `src/lib/kb/ProblemSplit.svelte` (counts are computed at render time, not typed)
-- tickets: issues [#1](../../issues/1) `parser`, [#2](../../issues/2) `hint`, [#3](../../issues/3) `one-day move`
+- page: `src/routes/kb/incidents/4471-split/+page.svx`. It uses only the export's own components, so its counts are the desk's view, computed at render time.
+- tickets: issues [#1](../../issues/1) `parser` (closed, fixed), [#2](../../issues/2) `hint` (closed, won't fix), [#3](../../issues/3) `one-day move` (open)
 - the page as the desk sees it: `rendered/4471-split.html` (one file, no scripts needed), `rendered/4471-split.png`, and the whole built kb in `rendered/site/`
 
 To render it yourself: `npm install && npm run build`, then serve `build/`. `package.json`, `svelte.config.js`, `vite.config.js`, `src/app.html` and `src/routes/+layout.js` were added only to render the export (SvelteKit + mdsvex, `#lib` → `src/lib`).
